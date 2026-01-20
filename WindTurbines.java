@@ -1,6 +1,7 @@
 import java.util.Scanner; //for reading keyboard input and Files
 import java.io.File;
 import java.io.PrintWriter; //for printing to a file
+import java.lang.reflect.Array;
 import java.io.IOException; //Exception that can be thrown by File and Scanner
 import java.util.ArrayList;
 
@@ -56,7 +57,7 @@ public static void main(String[] args) {
             System.out.println("1. Read Data From File");
             System.out.println("2. Add a wind turbine location");
             System.out.println("3. Total Number of Turbines");
-            System.out.println("4. Total Number of Turbines by State and County");
+            System.out.println("4. State With the Most Turbines");
             System.out.println("5. Save Data");
             System.out.println("Q. Quit");
 
@@ -68,7 +69,7 @@ public static void main(String[] args) {
                 String filename = keyboard.nextLine();
                 try {
                     windData = readDataFromFile(filename);
-                    System.out.println("Found");
+                    System.out.println("Found and Properly Read");
                 } 
                 catch (IOException e) {
                     System.out.println("An error occurred: " + e);
@@ -104,10 +105,7 @@ public static void main(String[] args) {
             }else if (input.equals("3")) {                
                 System.out.println("This data set contains " + countWindTurbines(windData) + " wind turbines.");
             }else if (input.equals("4")) {
-                String state = keyboard.nextLine();               
-                System.out.println("State Abreviation: ");
-                String county = keyboard.nextLine();
-                System.out.println("County: ");
+                System.out.println(stateWithMostTurbines(windData));
             }else if (input.equals("5")) {
                 System.out.print("filename: ");
                 String filename = keyboard.nextLine();
@@ -134,21 +132,33 @@ for (String[] row : windData.subList(1, windData.size())) {
 }
 return sum;
 }
+public static String stateWithMostTurbines(ArrayList<String[]> windData) {
+        ArrayList<String> states = new ArrayList<String>();
+        ArrayList<Integer> totals = new ArrayList<Integer>();
 
-public static ArrayList<String[]> windTurbinesStateCounty(ArrayList<String[]> windData) {
-ArrayList<String[]> stateCounty = new ArrayList<>();
-//go through all but the first row (which is the headings)
-for (String[] row : windData.subList(1, windData.size())) {
-    String state = row[0];
-    String county = row[1];
-    state = state.replace("\"", "");
-    county = county.replace("\"", "");
-    if(row[1].equals(state) && row[2].equals(county))
-    {
-        stateCounty.add(row);
+        //go through all but the first row (which is the headings)
+        for (String[] row : windData.subList(1, windData.size())) {
+            String state = row[0].replace("\"", "");
+            int turbines = Integer.parseInt(row[9].replace("\"", ""));
+
+            int index = states.indexOf(state);
+            if (index == -1) {
+                states.add(state);
+                totals.add(turbines);
+            } else {
+                totals.set(index, totals.get(index) + turbines);
+            }
+        }
+
+        int maxIndex = 0;
+        for (int i = 1; i < totals.size(); i++) {
+            if (totals.get(i) > totals.get(maxIndex)) {
+                maxIndex = i;
+            }
+        }
+
+        return "State with the most wind turbines: "
+                + states.get(maxIndex)
+                + " (" + totals.get(maxIndex) + ")";
     }
-}
-return stateCounty;
-}
-
 }
